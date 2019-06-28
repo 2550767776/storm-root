@@ -5,7 +5,9 @@ import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,11 +27,6 @@ public class LogProcessBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-//        byte[] bytes = tuple.getBinaryByField("default");
-//        byte[] bytes = tuple.getBinaryByField("bytes");
-//        String string = new String(bytes);
-//        System.out.println(string+"*********");
-
         // 13677777777	116.38631,39.837209	2019-06-28 20:48:53
         String value = (String) tuple.getValues().get(4);
         String[] values = value.split("\t");
@@ -39,13 +36,15 @@ public class LogProcessBolt extends BaseRichBolt {
         String lat = address[1];
         try {
             Long time = format.parse(values[2]).getTime();
+            outputCollector.emit(new Values(time,Double.parseDouble(lat),Double.parseDouble(lng)));
+            this.outputCollector.ack(tuple);
         } catch (ParseException e) {
-            e.printStackTrace();
+            this.outputCollector.fail(tuple);
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-
+        outputFieldsDeclarer.declare(new Fields("time","lat","lng"));
     }
 }
