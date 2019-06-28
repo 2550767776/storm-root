@@ -1,0 +1,4 @@
+#logging
+logging:
+  level:
+    com.ylc: info
