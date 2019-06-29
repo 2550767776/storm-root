@@ -33,4 +33,4 @@ def generate_log(count=3):
         count = count - 1
 
 if __name__ == '__main__':
-    generate_log(10)
+    generate_log(1000)

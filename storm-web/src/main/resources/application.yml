@@ -1,4 +1,30 @@
+server:
+  port: 8081
+
 #logging
 logging:
   level:
     com.ylc: info
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/storm?useSSL=false
+    username: root
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mvc:
+    view:
+      suffix: .html
+      prefix: /
+
+  thymeleaf:
+    cache: false
+    enabled: false
+
+

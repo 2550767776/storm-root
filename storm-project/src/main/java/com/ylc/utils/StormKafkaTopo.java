@@ -3,15 +3,21 @@ package com.ylc.utils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.jdbc.bolt.JdbcInsertBolt;
+import org.apache.storm.jdbc.common.Column;
 import org.apache.storm.jdbc.common.ConnectionProvider;
 import org.apache.storm.jdbc.common.HikariCPConnectionProvider;
 import org.apache.storm.jdbc.mapper.JdbcMapper;
 import org.apache.storm.jdbc.mapper.SimpleJdbcMapper;
+import org.apache.storm.jdbc.trident.state.JdbcState;
+import org.apache.storm.jdbc.trident.state.JdbcStateFactory;
 import org.apache.storm.kafka.spout.KafkaSpout;
 import org.apache.storm.kafka.spout.KafkaSpoutConfig;
+import org.apache.storm.shade.com.google.common.collect.Lists;
 import org.apache.storm.shade.com.google.common.collect.Maps;
 import org.apache.storm.topology.TopologyBuilder;
 
+import java.sql.Types;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -41,11 +47,18 @@ public class StormKafkaTopo {
         hikariConfigMap.put("dataSource.password","123456");
         ConnectionProvider connectionProvider = new HikariCPConnectionProvider(hikariConfigMap);
         String tableName = "stat";
-        JdbcMapper simpleJdbcMapper = new SimpleJdbcMapper(tableName, connectionProvider);
+//        JdbcMapper simpleJdbcMapper = new SimpleJdbcMapper(tableName, connectionProvider);
+        List<Column> columnSchema = Lists.newArrayList(
+                new Column("time", Types.BIGINT),
+                new Column("lat", Types.DOUBLE),
+                new Column("lng", Types.DOUBLE));
+        JdbcMapper simpleJdbcMapper = new SimpleJdbcMapper(columnSchema);
 
         JdbcInsertBolt userPersistanceBolt = new JdbcInsertBolt(connectionProvider, simpleJdbcMapper)
                 .withTableName(tableName)
                 .withQueryTimeoutSecs(30);
+
+
         builder.setBolt("JdbcInsertBolt",userPersistanceBolt).shuffleGrouping(boltId);
 
         LocalCluster cluster = new LocalCluster();

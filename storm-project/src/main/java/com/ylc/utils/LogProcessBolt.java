@@ -29,7 +29,11 @@ public class LogProcessBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         // 13677777777	116.38631,39.837209	2019-06-28 20:48:53
         String value = (String) tuple.getValues().get(4);
+        System.out.println(value);
         String[] values = value.split("\t");
+        if (values.length != 3) {
+            this.outputCollector.fail(tuple);
+        }
         String phone = values[0];
         String[] address = values[1].split(",");
         String lng = address[0];
